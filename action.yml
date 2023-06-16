@@ -21,5 +21,7 @@ runs:
     - id: create-file
       run: echo "path=/tmp/$(openssl rand 10 | openssl base64 -A)/${{ inputs.file-name }}" >> $GITHUB_OUTPUT
       shell: bash
+    - run: echo ${{ inputs.base64-file-content }} | base64 --decode > ${{ steps.create-file.outputs.path }}
+      shell: bash 
     - run: echo "File created at path ${{ steps.create-file.outputs.path }}"
       shell: bash 
