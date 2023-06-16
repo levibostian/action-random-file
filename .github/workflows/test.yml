@@ -16,5 +16,8 @@ jobs:
         with:
           base64-file-content: ${{ secrets.TEST_BASE64_FILE_CONTENT }}
           file-name: "actual.txt"
+      - run: |
+          echo "${{ steps.create-actual-file.outputs.path }}"
+          cat "${{ steps.create-actual-file.outputs.path }}"
       - name: Compare created file with expected 
         run: cmp -s ${{ steps.create-actual-file.outputs.path }} test-file.txt || exit 1
