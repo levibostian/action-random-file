@@ -13,23 +13,30 @@ inputs:
 outputs:
   path:
     description: "File path to the file created"
-    value: ${{ steps.create-file.outputs.path }}
+    value: ${{ steps.create-file-path.outputs.path }}    
+  file-directory:
+    description: "Directory the file exists in"
+    value: ${{ steps.create-directory-path.outputs.path }}
 
 runs:
   using: "composite"
   steps:
     # Generate path 
-    - id: create-file
-      run: echo "path=/tmp/$(openssl rand 10 | openssl base64 -A)/${{ inputs.file-name }}" >> $GITHUB_OUTPUT
+    - id: create-directory-path
+      run: echo "path=/tmp/$(openssl rand 10 | openssl base64 -A)/" >> $GITHUB_OUTPUT
+      shell: bash
+    
+    - id: create-file-path
+      run: echo "path=${{ steps.create-directory-path.outputs.path }}${{ inputs.file-name }}" >> $GITHUB_OUTPUT
       shell: bash
 
     # Create the path and file into the file system 
-    - run: mkdir -p ${{ steps.create-file.outputs.path }}
+    - run: mkdir -p ${{ steps.create-directory-path.outputs.path }}
       shell: bash 
 
     # Create the file from input contents 
-    - run: echo ${{ inputs.base64-file-content }} | base64 --decode > ${{ steps.create-file.outputs.path }}
+    - run: echo ${{ inputs.base64-file-content }} | base64 --decode > ${{ steps.create-file-path.outputs.path }}
       shell: bash 
-      
-    - run: echo "File created at path ${{ steps.create-file.outputs.path }}"
+
+    - run: echo "File created at path ${{ steps.create-file-path.outputs.path }}, parent directory path ${{ steps.create-directory-path.outputs.path }}"
       shell: bash 
